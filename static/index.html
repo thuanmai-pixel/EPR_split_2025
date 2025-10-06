@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Tư vấn Pháp luật Môi trường</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2d5016 0%, #1a4d2e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(76, 175, 80, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(46, 125, 50, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(129, 199, 132, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.95) 0%, rgba(27, 94, 32, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 20px 20px 0 0;
+            padding: 25px 30px;
+            border: 1px solid rgba(129, 199, 132, 0.3);
+            border-bottom: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-btn.primary {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .header-btn.primary:hover {
+            background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .chat-container {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.98);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-top: none;
+            border-bottom: none;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 20px 20px 5px 20px;
+            box-shadow: 0 3px 15px rgba(46, 125, 50, 0.3);
+        }
+
+        .message.assistant {
+            align-self: flex-start;
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            padding: 20px;
+            border-radius: 20px 20px 20px 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .message.assistant .answer-content {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .message.assistant .answer-content h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sources-section {
+            border-top: 1px solid #e1e5e9;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .sources-title {
+            color: #1b5e20;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .source-item {
+            background: white;
+            border: 1px solid #e8e9ea;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .source-item.simple {
+            border-left: 4px solid #43a047;
+            background: #e8f5e9;
+        }
+
+        .source-metadata {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .metadata-tag {
+            background: #c8e6c9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: #1b5e20;
+        }
+
+        .source-text {
+            background: #fafafa;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #43a047;
+            font-size: 0.85em;
+            line-height: 1.4;
+            margin-top: 8px;
+        }
+
+        .input-container {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0 0 20px 20px;
+            padding: 20px;
+        }
+
+        .input-form {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .query-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .query-input:focus {
+            outline: none;
+            border-color: #43a047;
+            box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.1);
+        }
+
+        .send-button {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 100px;
+            box-shadow: 0 3px 12px rgba(67, 160, 71, 0.3);
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(67, 160, 71, 0.4);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .typing-indicator {
+            align-self: flex-start;
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            padding: 20px;
+            border-radius: 20px 20px 20px 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #43a047;
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+            font-style: italic;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+            border-left: 4px solid #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #388e3c 0%, #1b5e20 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 20px 30px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #43a047;
+            box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.1);
+        }
+
+        .pdf-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .pdf-item {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .pdf-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .pdf-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .pdf-title {
+            font-weight: bold;
+            color: #2e7d32;
+            font-size: 1.1em;
+            flex: 1;
+        }
+
+        .pdf-badge {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin-left: 10px;
+            box-shadow: 0 2px 8px rgba(67, 160, 71, 0.3);
+        }
+
+        .pdf-description {
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .pdf-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .pdf-meta-tag {
+            background: #c8e6c9;
+            color: #1b5e20;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+        }
+
+        .pdf-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .pdf-action-btn {
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: transform 0.2s;
+        }
+
+        .pdf-action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(56, 142, 60, 0.3);
+        }
+
+        .view-btn:hover {
+            box-shadow: 0 4px 12px rgba(56, 142, 60, 0.4);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        .download-btn:hover {
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .no-results {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .header {
+                padding: 15px 20px;
+            }
+
+            .header-actions {
+                position: static;
+                margin-top: 10px;
+                justify-content: center;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+
+            .source-metadata {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                max-height: 90vh;
+            }
+
+            .modal-body {
+                padding: 15px 20px;
+            }
+
+            .pdf-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌿 Hệ thống Tư vấn Pháp luật Môi trường EPR</h1>
+            <p>Tìm hiểu về các quy định pháp luật bảo vệ môi trường Việt Nam EPR</p>
+            <div class="header-actions">
+                <button class="header-btn primary" onclick="openPdfBrowser()">
+                    📄 Tra cứu phụ lục
+                </button>
+                <button class="header-btn" onclick="clearChat()">
+                    🗑️ Xóa lịch sử
+                </button>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <p>Xin chào! Tôi là trợ lý AI chuyên về pháp luật EPR Việt Nam.</p>
+                    <p>Hãy đặt câu hỏi để tôi có thể hỗ trợ bạn tìm hiểu các quy định EPR.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-form">
+                <textarea 
+                    id="queryInput" 
+                    class="query-input" 
+                    placeholder="Nhập câu hỏi của bạn về pháp luật môi trường EPR..."
+                    rows="1"
+                ></textarea>
+                <button id="sendButton" class="send-button" onclick="submitQuery()">
+                    Gửi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Browser Modal -->
+    <div id="pdfModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📄 Danh mục Phụ lục và Biểu mẫu</h2>
+                <button class="modal-close" onclick="closePdfBrowser()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        id="pdfSearchInput" 
+                        class="search-input" 
+                        placeholder="🔍 Tìm kiếm phụ lục, biểu mẫu..."
+                        oninput="filterPdfList()"
+                    >
+                </div>
+                <div id="pdfList" class="pdf-list">
+                    <div class="no-results">Đang tải danh sách...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - UPDATED FOR PRODUCTION
+        const API_ENDPOINT = '/query';  // Changed from http://127.0.0.1:5000/query to relative URL
+        let pdfCatalog = {};
+
+        // Auto-resize textarea
+        const queryInput = document.getElementById('queryInput');
+        queryInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Load PDF catalog on page load
+        async function loadPdfCatalog() {
+            try {
+                const response = await fetch('/pdf_catalog.json');  // Updated to relative URL
+                pdfCatalog = await response.json();
+                console.log('PDF catalog loaded:', Object.keys(pdfCatalog).length, 'items');
+            } catch (error) {
+                console.error('Error loading PDF catalog:', error);
+            }
+        }
+
+        async function submitQuery() {
+            const queryInput = document.getElementById('queryInput');
+            const sendButton = document.getElementById('sendButton');
+            const chatMessages = document.getElementById('chatMessages');
+            
+            const query = queryInput.value.trim();
+            if (!query) {
+                return;
+            }
+
+            const welcomeMessage = chatMessages.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.remove();
+            }
+
+            addUserMessage(query);
+
+            queryInput.value = '';
+            queryInput.style.height = 'auto';
+            sendButton.disabled = true;
+            sendButton.textContent = 'Đang gửi...';
+
+            const typingIndicator = addTypingIndicator();
+
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: query })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                typingIndicator.remove();
+                addAssistantMessage(data);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                typingIndicator.remove();
+                addErrorMessage(`Đã xảy ra lỗi: ${error.message}`);
+            } finally {
+                sendButton.disabled = false;
+                sendButton.textContent = 'Gửi';
+                queryInput.focus();
+            }
+        }
+
+        function addUserMessage(text) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function addTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span>Đang tìm kiếm...</span>
+            `;
+            chatMessages.appendChild(typingDiv);
+            scrollToBottom();
+            return typingDiv;
+        }
+
+        function addAssistantMessage(data) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant';
+            
+            let messageType = '📋';
+            let messageTitle = 'Câu trả lời';
+            
+            if (data.is_app_info) {
+                messageType = '📱';
+                messageTitle = 'Thông tin ứng dụng';
+            } else if (data.is_faq) {
+                messageType = '📋';
+                messageTitle = 'Câu trả lời';
+            } else if (data.is_pdf_catalog) {
+                messageType = '📄';
+                messageTitle = 'Tài liệu PDF';
+            }
+
+            let sourcesHtml = '';
+            
+            if (data.sources && data.sources.length > 0) {
+                if (data.is_faq) {
+                    sourcesHtml = `
+                        <div class="sources-section">
+                            <div class="sources-title">📚 Nguồn tài liệu</div>
+                            ${data.sources.map(source => `
+                                <div class="source-item simple">
+                                    <strong>Nguồn tài liệu tham khảo:</strong> ${source.source}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else if (data.is_pdf_catalog) {
+                    sourcesHtml = `
+                        <div class="sources-section">
+                            <div class="sources-title">📚 Thông tin tài liệu</div>
+                            ${data.sources.map(source => `
+                                <div class="source-item">
+                                    <div><strong>Căn cứ pháp lý:</strong> ${source.source}</div>
+                                    <div><strong>File PDF:</strong> ${source.file_path}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    sourcesHtml = `
+                        <div class="sources-section">
+                            <div class="sources-title">📚 Nguồn tài liệu tham khảo</div>
+                            ${data.sources.map(source => `
+                                <div class="source-item">
+                                    <div class="source-metadata">
+                                        <div class="metadata-tag">Điều: ${source.metadata?.dieu || 'N/A'}</div>
+                                        <div class="metadata-tag">Chương: ${source.metadata?.chuong || 'N/A'}</div>
+                                        <div class="metadata-tag">Mục: ${source.metadata?.muc || 'N/A'}</div>
+                                        <div class="metadata-tag">Trang: ${source.metadata?.pages || 'N/A'}</div>
+                                    </div>
+                                    <div><strong>Tiêu đề:</strong> ${source.metadata?.dieu_title || 'N/A'}</div>
+                                    ${source.text ? `<div class="source-text">${source.text}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+
+            messageDiv.innerHTML = `
+                <div class="answer-content">
+                    <h4>${messageType} ${messageTitle}</h4>
+                    <div>${data.answer.replace(/\n/g, '<br>')}</div>
+                </div>
+                ${sourcesHtml}
+            `;
+
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function addErrorMessage(errorText) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant';
+            messageDiv.innerHTML = `
+                <div class="error-message">
+                    <strong>Lỗi:</strong> ${errorText}
+                </div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function clearChat() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="welcome-message">
+                    <p>Xin chào! Tôi là trợ lý AI chuyên về pháp luật môi trường Việt Nam.</p>
+                    <p>Hãy đặt câu hỏi để tôi có thể hỗ trợ bạn tìm hiểu các quy định pháp luật.</p>
+                </div>
+            `;
+        }
+
+        // PDF Browser Functions
+        function openPdfBrowser() {
+            const modal = document.getElementById('pdfModal');
+            modal.classList.add('active');
+            renderPdfList();
+        }
+
+        function closePdfBrowser() {
+            const modal = document.getElementById('pdfModal');
+            modal.classList.remove('active');
+            document.getElementById('pdfSearchInput').value = '';
+        }
+
+        function renderPdfList(filterText = '') {
+            const pdfList = document.getElementById('pdfList');
+            const entries = Object.entries(pdfCatalog);
+            
+            if (entries.length === 0) {
+                pdfList.innerHTML = '<div class="no-results">Không có dữ liệu phụ lục</div>';
+                return;
+            }
+
+            const filtered = entries.filter(([id, doc]) => {
+                if (!filterText) return true;
+                const searchText = filterText.toLowerCase();
+                return doc.title.toLowerCase().includes(searchText) ||
+                       doc.description.toLowerCase().includes(searchText) ||
+                       doc.keywords.some(kw => kw.toLowerCase().includes(searchText)) ||
+                       (doc.roman_index && doc.roman_index.toLowerCase().includes(searchText));
+            });
+
+            if (filtered.length === 0) {
+                pdfList.innerHTML = '<div class="no-results">Không tìm thấy kết quả phù hợp</div>';
+                return;
+            }
+
+            pdfList.innerHTML = filtered.map(([id, doc]) => `
+                <div class="pdf-item">
+                    <div class="pdf-item-header">
+                        <div class="pdf-title">${doc.title}</div>
+                        ${doc.roman_index ? `<div class="pdf-badge">${doc.roman_index}</div>` : ''}
+                    </div>
+                    <div class="pdf-description">${doc.description}</div>
+                    <div class="pdf-meta">
+                        <div class="pdf-meta-tag">📂 ${doc.category}</div>
+                        ${doc.keywords.slice(0, 3).map(kw => `<div class="pdf-meta-tag">${kw}</div>`).join('')}
+                    </div>
+                    <div class="pdf-actions">
+                        <button class="pdf-action-btn view-btn" onclick="viewPdf('${doc.file_path}')">
+                            👁️ Xem
+                        </button>
+                        <button class="pdf-action-btn download-btn" onclick="downloadPdf('${doc.file_path}', '${doc.title}')">
+                            ⬇️ Tải xuống
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterPdfList() {
+            const searchInput = document.getElementById('pdfSearchInput');
+            renderPdfList(searchInput.value);
+        }
+
+        function viewPdf(filePath) {
+            window.open(filePath, '_blank');
+        }
+
+        function downloadPdf(filePath, title) {
+            const link = document.createElement('a');
+            link.href = filePath;
+            link.download = title + '.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('pdfModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePdfBrowser();
+            }
+        });
+
+        // Handle Enter key
+        queryInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                submitQuery();
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            queryInput.focus();
+            loadPdfCatalog();
+        });
+    </script>
+</body>
+</html>

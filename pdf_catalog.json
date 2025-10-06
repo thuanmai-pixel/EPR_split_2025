@@ -1,0 +1,52 @@
+{
+    "phu_luc_I": {
+      "title": "phụ lục I- Danh mục chiến lược phát triển ngành, lĩnh vực quy mô quốc gia, cấp vùng, quy hoạch ngành quốc gia và quy hoạch có tính chất kỹ thuật, chuyên ngành phải thực hiện đánh giá môi trường chiến lược",
+      "description": "Quy định các chiến lược phát triển ngành, lĩnh vực ở quy mô quốc gia, vùng và các quy hoạch ngành quốc gia, quy hoạch kỹ thuật – chuyên ngành",
+      "file_path": "documents/Phu_luc_I.pdf",
+      "category": "phụ lục",
+      "law_source": "01/VBHN-BTNMT (Văn bản hợp nhất Nghị định) -- Kèm theo Nghị định số 08/2022/NĐ-CP ngày 10 tháng 01 năm 2022 của Chính phủ",
+      "related_articles": [],
+      "roman_index": "I",
+      "keywords": ["chiến lược phát triển", "quy hoạch ngành", "đánh giá môi trường chiến lược", "quốc gia", "vùng", "kỹ thuật chuyên ngành"]
+  },
+  "phu_luc_II": {
+      "title": "phụ lục II - Danh mục loại hình sản xuất, kinh doanh, dịch vụ có nguy cơ gây ô nhiễm môi trường",
+      "description": "Quy định các loại hình sản xuất, kinh doanh, dịch vụ có nguy cơ gây ô nhiễm môi trường",
+      "file_path": "documents/Phu_luc_II.pdf",
+      "category": "phụ lục",
+      "law_source": "01/VBHN-BTNMT (Văn bản hợp nhất Nghị định) -- Kèm theo Nghị định số 08/2022/NĐ-CP ngày 10 tháng 01 năm 2022 của Chính phủ",
+      "related_articles": [],
+      "roman_index": "II",
+      "keywords": ["sản xuất", "kinh doanh", "dịch vụ", "ô nhiễm môi trường", "danh mục", "nguy cơ gây ô nhiễm"]
+  },
+  "phu_luc_III": {
+      "title": "phụ lục III - Danh mục dự án đầu tư nhóm I có nguy cơ tác động xấu đến môi trường ở mức độ cao quy định tại khoản 3 điều 28 luật bảo vệ môi trường",
+      "description": "Quy định danh mục dự án đầu tư nhóm I có nguy cơ tác động xấu đến môi trường ở mức độ cao theo khoản 3 điều 28 Luật Bảo vệ môi trường",
+      "file_path": "documents/Phu_luc_III.pdf",
+      "category": "phụ lục",
+      "law_source": "01/VBHN-BTNMT (Văn bản hợp nhất Nghị định) -- Kèm theo Nghị định số 08/2022/NĐ-CP ngày 10 tháng 01 năm 2022 của Chính phủ",
+      "related_articles": ["Điều 28"],
+      "roman_index": "III",
+      "keywords": ["dự án đầu tư", "nhóm I", "tác động xấu", "môi trường", "mức độ cao", "điều 28"]
+  },
+  "phu_luc_IV": {
+      "title": "phụ lục IV - Biểu mẫu báo cáo đánh giá tác động môi trường",
+      "description": "Biểu mẫu chuẩn để lập báo cáo đánh giá tác động môi trường cho các dự án đầu tư",
+      "file_path": "documents/Phu_luc_IV.pdf",
+      "category": "biểu mẫu",
+      "law_source": "01/VBHN-BTNMT (Văn bản hợp nhất Nghị định) -- Kèm theo Nghị định số 08/2022/NĐ-CP ngày 10 tháng 01 năm 2022 của Chính phủ",
+      "related_articles": [],
+      "roman_index": "IV",
+      "keywords": ["biểu mẫu", "báo cáo", "đánh giá tác động", "môi trường", "dự án đầu tư", "mẫu đơn"]
+  },
+  "phu_luc_V": {
+      "title": "phụ lục V - Biểu mẫu đăng ký môi trường",
+      "description": "Biểu mẫu đăng ký môi trường cho các cơ sở sản xuất, kinh doanh, dịch vụ",
+      "file_path": "documents/Phu_luc_V.pdf",
+      "category": "biểu mẫu",
+      "law_source": "01/VBHN-BTNMT (Văn bản hợp nhất Nghị định) -- Kèm theo Nghị định số 08/2022/NĐ-CP ngày 10 tháng 01 năm 2022 của Chính phủ",
+      "related_articles": [],
+      "roman_index": "V",
+      "keywords": ["biểu mẫu", "đăng ký môi trường", "cơ sở sản xuất", "kinh doanh", "dịch vụ", "mẫu đơn", "đơn mẫu"]
+  }
+  }
