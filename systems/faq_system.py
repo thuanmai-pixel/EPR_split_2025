@@ -65,14 +65,15 @@ Câu hỏi: "{user_query}"
 FAQ:
 {chr(10).join(faq_questions_list)}
 
-So sánh chủ đề, ý nghĩa, ngữ cảnh pháp lý. 
+So sánh chủ đề, ý nghĩa, ngữ cảnh pháp lý.
 
 Ví dụ phân tích:
-- "ai có trách nhiệm tái chế" → khớp với "Các đối tượng nào phải thực hiện trách nhiệm tái chế" 
+- "ai có trách nhiệm tái chế" → khớp với "Các đối tượng nào phải thực hiện trách nhiệm tái chế"
 - "doanh nghiệp cung cấp nguyên liệu có trách nhiệm tái chế không" → khớp với "Các đối tượng nào phải thực hiện trách nhiệm tái chế"
 - "khi nào thực hiện" → khớp với "Khi nào nhà sản xuất... phải thực hiện"
 
-QUAN TRỌNG: 
+QUAN TRỌNG:
+- Câu chào hỏi (xin chào, hi, hello, chào bạn): trả lời "0"
 - Nếu tìm thấy câu hỏi liên quan ≥70%: trả lời SỐ (1,2,3...)
 - Nếu không tìm thấy: trả lời "0"
 

@@ -9,6 +9,8 @@ from config import Config
 from systems.faq_system import FAQSystem
 from systems.pdf_catalog_system import PDFCatalogSystem
 from systems.app_info_system import AppInfoSystem
+from systems.scope_checker import ScopeChecker
+from systems.conversation_tracker import ConversationTracker
 from retriever.setup import RetrieverSystem
 from handlers.query_handler import QueryHandler
 from routes.api_routes import api_bp, set_query_handler
@@ -56,21 +58,32 @@ def create_app():
         # 5. Initialize app info system (requires OpenAI client)
         app_info_system = AppInfoSystem(openai_client)
         logger.info("App info system initialized")
-        
-        # 6. Initialize query handler (combines all systems)
+
+        # 6. Initialize scope checker (requires OpenAI client)
+        scope_checker = ScopeChecker(openai_client)
+        logger.info("Scope checker initialized")
+
+        # 7. Initialize conversation tracker
+        conversation_tracker = ConversationTracker(max_off_topic=3, session_timeout_minutes=30)
+        logger.info("Conversation tracker initialized")
+
+        # 8. Initialize query handler (combines all systems)
         query_handler = QueryHandler(
             faq_system=faq_system,
             pdf_catalog_system=pdf_catalog_system,
             app_info_system=app_info_system,
             retriever=retriever_system.get_retriever(),
-            query_engine=retriever_system.get_query_engine()
+            query_engine=retriever_system.get_query_engine(),
+            scope_checker=scope_checker,
+            conversation_tracker=conversation_tracker,
+            openai_client=openai_client
         )
         logger.info("Query handler initialized")
-        
-        # 7. Set query handler for routes
+
+        # 9. Set query handler for routes
         set_query_handler(query_handler)
-        
-        # 8. Register blueprints
+
+        # 10. Register blueprints
         app.register_blueprint(api_bp)
         
         logger.info("Application initialized successfully!")

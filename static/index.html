@@ -646,6 +646,13 @@
         const API_ENDPOINT = '/query';  // Changed from http://127.0.0.1:5000/query to relative URL
         let pdfCatalog = {};
 
+        // Generate a unique session ID for this user session
+        let sessionId = localStorage.getItem('epr_session_id');
+        if (!sessionId) {
+            sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('epr_session_id', sessionId);
+        }
+
         // Auto-resize textarea
         const queryInput = document.getElementById('queryInput');
         queryInput.addEventListener('input', function() {
@@ -664,15 +671,19 @@
             }
         }
 
+        let isSubmitting = false;
+
         async function submitQuery() {
             const queryInput = document.getElementById('queryInput');
             const sendButton = document.getElementById('sendButton');
             const chatMessages = document.getElementById('chatMessages');
-            
+
             const query = queryInput.value.trim();
-            if (!query) {
+            if (!query || isSubmitting) {
                 return;
             }
+
+            isSubmitting = true;
 
             const welcomeMessage = chatMessages.querySelector('.welcome-message');
             if (welcomeMessage) {
@@ -694,7 +705,10 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ query: query })
+                    body: JSON.stringify({
+                        query: query,
+                        session_id: sessionId
+                    })
                 });
 
                 if (!response.ok) {
@@ -713,6 +727,7 @@
             } finally {
                 sendButton.disabled = false;
                 sendButton.textContent = 'Gửi';
+                isSubmitting = false;
                 queryInput.focus();
             }
         }

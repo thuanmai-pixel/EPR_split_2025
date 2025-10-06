@@ -47,20 +47,24 @@ def process_query():
         # Validate query handler
         if not query_handler:
             return jsonify({'error': 'System not initialized'}), 503
-        
+
         # Get query from request
         data = request.get_json()
         if not data or 'query' not in data:
             return jsonify({'error': 'Missing query parameter'}), 400
-        
+
         query_text = data['query'].strip()
         if not query_text:
             return jsonify({'error': 'Empty query'}), 400
-        
-        # Process query through handler
-        result = query_handler.process_query(query_text)
+
+        # Get session_id from request (optional)
+        # Client should generate and maintain a unique session_id (e.g., UUID)
+        session_id = data.get('session_id', None)
+
+        # Process query through handler with session tracking
+        result = query_handler.process_query(query_text, session_id=session_id)
         return jsonify(result)
-        
+
     except Exception as e:
         logger.error(f"Error processing query: {str(e)}")
         return jsonify({'error': f'Internal server error: {str(e)}'}), 500
