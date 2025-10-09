@@ -2,12 +2,12 @@ import logging
 import weaviate
 from weaviate.classes.init import Auth
 from llama_index.vector_stores.weaviate import WeaviateVectorStore
-from llama_index.core import VectorStoreIndex
+from llama_index.core import VectorStoreIndex, PromptTemplate
 from llama_index.core.retrievers import VectorIndexAutoRetriever, VectorIndexRetriever
 from llama_index.core.query_engine import RetrieverQueryEngine
+from llama_index.core.response_synthesizers import ResponseMode, get_response_synthesizer
 from llama_index.llms.openai import OpenAI
 from llama_index.core.vector_stores.types import VectorStoreInfo, MetadataInfo
-from llama_index.core.prompts import PromptTemplate
 from config import Config
 
 logger = logging.getLogger(__name__)
@@ -122,33 +122,80 @@ class RetrieverSystem:
             return retriever
     
     def _setup_query_engine(self, retriever):
-        """Setup query engine with Vietnamese prompt"""
-        llm = OpenAI(model=Config.LLM_MODEL, temperature=Config.LLM_TEMPERATURE)
-        
-        # Create Vietnamese response template
-        vietnamese_qa_prompt = PromptTemplate(
-            """Bạn là một chuyên gia pháp lý về bảo vệ môi trường Việt Nam. Hãy trả lời câu hỏi bằng tiếng Việt dựa trên thông tin được cung cấp.
+        """Setup query engine with enhanced Vietnamese prompts and response synthesizer"""
 
-Ngữ cảnh pháp lý:
+        # Create LLM with low temperature for factual legal responses
+        llm = OpenAI(
+            model=Config.LLM_MODEL,
+            temperature=0.1,  # Low temperature for factual legal responses
+        )
+
+        # Define custom QA prompt for Vietnamese legal queries
+        qa_prompt_template = PromptTemplate(
+            """Bạn là chuyên gia tư vấn pháp luật về Bảo vệ Môi trường Việt Nam với kinh nghiệm sâu rộng.
+
+Nhiệm vụ của bạn là phân tích và trả lời câu hỏi dựa trên các quy định pháp luật được cung cấp dưới đây.
+
+THÔNG TIN PHÁP LUẬT:
+---------------------
 {context_str}
+---------------------
 
-Câu hỏi: {query_str}
+CÂU HỎI: {query_str}
 
-Hướng dẫn trả lời:
-- Trả lời hoàn toàn bằng tiếng Việt
-- Cung cấp thông tin chính xác và chi tiết
-- Trích dẫn các điều luật cụ thể nếu có
-- Giải thích một cách dễ hiểu
+YÊU CẦU TRẢ LỜI:
+1. **Trích dẫn chính xác**: Nêu rõ Điều, Khoản, Chương, Mục liên quan
+2. **Giải thích chi tiết**: Làm rõ nội dung quy định, yêu cầu pháp lý
+3. **Đối tượng áp dụng**: Xác định ai/tổ chức nào chịu sự điều chỉnh
+4. **Nghĩa vụ và quyền**: Liệt kê các nghĩa vụ phải thực hiện và quyền được hưởng
+5. **Thủ tục và quy trình**: Mô tả các bước thực hiện (nếu có)
+6. **Hình phạt/Xử lý vi phạm**: Nêu hậu quả pháp lý nếu không tuân thủ (nếu có)
+7. **Lưu ý đặc biệt**: Các điều kiện, ngoại lệ, hoặc yêu cầu quan trọng khác
 
-Trả lời:"""
+CẤU TRÚC TRẢ LỜI:
+- Sử dụng đề mục rõ ràng để phân chia nội dung
+- Trình bày logic, dễ hiểu, chuyên nghiệp
+- Nếu thông tin không đầy đủ, nêu rõ phần nào còn thiếu và cần tra cứu thêm
+
+Hãy trả lời bằng tiếng Việt một cách chính xác, chi tiết và dễ hiểu:"""
         )
-        
-        query_engine = RetrieverQueryEngine.from_args(
-            retriever, 
+
+        # Define refine prompt for iterative refinement
+        refine_prompt_template = PromptTemplate(
+            """Bạn là chuyên gia pháp luật môi trường. Nhiệm vụ của bạn là tinh chỉnh câu trả lời hiện tại bằng cách bổ sung thêm thông tin mới.
+
+CÂU TRẢ LỜI HIỆN TẠI:
+{existing_answer}
+
+THÔNG TIN BỔ SUNG:
+{context_msg}
+
+CÂU HỎI GỐC: {query_str}
+
+Hãy cập nhật và hoàn thiện câu trả lời bằng cách:
+- Tích hợp thông tin mới một cách mạch lạc
+- Bổ sung các điều luật, quy định liên quan
+- Làm rõ hơn các yêu cầu, nghĩa vụ, và hình phạt
+- Giữ nguyên cấu trúc rõ ràng và chuyên nghiệp
+
+CÂU TRẢ LỜI HOÀN THIỆN:"""
+        )
+
+        # Create response synthesizer with custom prompts
+        response_synthesizer = get_response_synthesizer(
+            response_mode=ResponseMode.COMPACT,  # Best for combining multiple sources
+            text_qa_template=qa_prompt_template,
+            refine_template=refine_prompt_template,
             llm=llm,
-            text_qa_template=vietnamese_qa_prompt
+            verbose=True,  # Shows the synthesis process
         )
-        
+
+        # Create query engine with custom response synthesizer
+        query_engine = RetrieverQueryEngine(
+            retriever=retriever,
+            response_synthesizer=response_synthesizer,
+        )
+
         return query_engine
     
     def get_retriever(self):

@@ -220,8 +220,54 @@
             border-radius: 6px;
             border-left: 3px solid #43a047;
             font-size: 0.85em;
-            line-height: 1.4;
+            line-height: 1.6;
             margin-top: 8px;
+        }
+
+        .source-text-content {
+            line-height: 1.8;
+        }
+
+        .source-text-content p {
+            margin-bottom: 12px;
+        }
+
+        .source-text-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .expand-toggle {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(67, 160, 71, 0.3);
+        }
+
+        .expand-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(67, 160, 71, 0.4);
+        }
+
+        .expand-toggle .arrow {
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .expand-toggle.expanded .arrow {
+            transform: rotate(180deg);
+        }
+
+        .source-text.collapsed {
+            display: none;
         }
 
         .input-container {
@@ -807,7 +853,7 @@
                     sourcesHtml = `
                         <div class="sources-section">
                             <div class="sources-title">📚 Nguồn tài liệu tham khảo</div>
-                            ${data.sources.map(source => `
+                            ${data.sources.map((source, index) => `
                                 <div class="source-item">
                                     <div class="source-metadata">
                                         <div class="metadata-tag">Điều: ${source.metadata?.dieu || 'N/A'}</div>
@@ -816,7 +862,17 @@
                                         <div class="metadata-tag">Trang: ${source.metadata?.pages || 'N/A'}</div>
                                     </div>
                                     <div><strong>Tiêu đề:</strong> ${source.metadata?.dieu_title || 'N/A'}</div>
-                                    ${source.text ? `<div class="source-text">${source.text}</div>` : ''}
+                                    ${source.text ? `
+                                        <button class="expand-toggle" onclick="toggleSourceText(${index})">
+                                            <span class="arrow">▼</span>
+                                            <span>Xem nội dung chi tiết</span>
+                                        </button>
+                                        <div class="source-text collapsed" id="source-text-${index}">
+                                            <div class="source-text-content">
+                                                ${formatSourceText(source.text)}
+                                            </div>
+                                        </div>
+                                    ` : ''}
                                 </div>
                             `).join('')}
                         </div>
@@ -852,6 +908,61 @@
         function scrollToBottom() {
             const chatMessages = document.getElementById('chatMessages');
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function formatSourceText(text) {
+            if (!text) return '';
+
+            // Split text into sentences based on common Vietnamese sentence endings
+            // This will break text at periods, exclamation marks, question marks followed by space
+            let sentences = text.split(/(?<=[.!?])\s+(?=[A-ZĐÁÀẢÃẠÂẤẦẨẪẬĂẮẰẲẴẶÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ])/);
+
+            // Group sentences into paragraphs (3-4 sentences per paragraph for readability)
+            let paragraphs = [];
+            let currentParagraph = [];
+
+            sentences.forEach((sentence, index) => {
+                currentParagraph.push(sentence.trim());
+
+                // Create a new paragraph every 3 sentences, or if sentence is very long
+                if (currentParagraph.length >= 3 || sentence.length > 200 || index === sentences.length - 1) {
+                    if (currentParagraph.length > 0) {
+                        paragraphs.push(currentParagraph.join(' '));
+                        currentParagraph = [];
+                    }
+                }
+            });
+
+            // If there's only one paragraph and it's very long, try to split by semicolons or numbered lists
+            if (paragraphs.length === 1 && paragraphs[0].length > 300) {
+                const longText = paragraphs[0];
+                // Try to split by semicolons or numbered points
+                const splitByPoints = longText.split(/(?:;|\d+\)|\d+\.)\s+(?=[A-ZĐÁÀẢÃẠÂẤẦẨẪẬĂẮẰẲẴẶÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ])/);
+                if (splitByPoints.length > 1) {
+                    paragraphs = splitByPoints.map(p => p.trim()).filter(p => p.length > 0);
+                }
+            }
+
+            // Convert to HTML paragraphs
+            return paragraphs.map(p => `<p>${p}</p>`).join('');
+        }
+
+        function toggleSourceText(index) {
+            const sourceTextDiv = document.getElementById(`source-text-${index}`);
+            const button = event.target.closest('.expand-toggle');
+
+            if (sourceTextDiv && button) {
+                sourceTextDiv.classList.toggle('collapsed');
+                button.classList.toggle('expanded');
+
+                // Update button text
+                const textSpan = button.querySelector('span:not(.arrow)');
+                if (sourceTextDiv.classList.contains('collapsed')) {
+                    textSpan.textContent = 'Xem nội dung chi tiết';
+                } else {
+                    textSpan.textContent = 'Ẩn nội dung';
+                }
+            }
         }
 
         function clearChat() {
